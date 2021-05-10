@@ -9,3 +9,21 @@
 
 # Undo-tree save-files
 *.~undo-tree
+var/
+local/
+elpa/
+gpkg/
+site-lisp/
+auto-save-list/
+.cask/
+/.last-package-update-day
+/.lsp-session*
+/.markdown-preview.html
+/projectile-bookmarks.eld
+/projectile.cache
+
+*.bak
+*.data
+*.db
+*.log
+*.sqlite
