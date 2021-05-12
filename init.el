@@ -104,7 +104,7 @@
   :commands command-log-mode)
 
 (use-package doom-themes
-  :init (load-theme 'doom-one t))
+  :init (load-theme 'doom-gruvbox t))
 
 (use-package all-the-icons)
 
@@ -270,9 +270,10 @@
   :pin org
   :commands (org-capture org-agenda)
   :hook (org-mode . efs/org-mode-setup)
+  :bind (:map org-mode-map
+              ("C-c i". org-toggle-item))
   :config
   (setq org-ellipsis " ▾")
-
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -429,6 +430,27 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+(defun efs/org-start-presentation ()
+  (setq text-scale-mode-amount 3)
+  (org-display-inline-images)
+  (text-scale-mode 1))
+
+(defun efs/org-end-presentation ()
+  (text-scale-mode 0))
+
+(use-package org-tree-slide
+  :defer t
+  :after org
+  :commands org-tree-slide-mode
+  :hook ((org-tree-slide-play . efs/org-start-presentation)
+         (org-tree-slide-stop . efs/org-end-presentation))
+  :config
+  (setq org-tree-slide-slide-in-effect t
+        org-tree-slide-activate-message "Presentation started."
+        org-tree-slide-deactivate-message "Presentation ended."
+        org-tree-slide-header t
+        org-image-actual-width nil))
 
 ;; convert org to html with jekyll
 (setq org-publish-project-alist
