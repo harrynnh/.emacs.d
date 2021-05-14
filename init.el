@@ -1,12 +1,7 @@
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
-
-;; You will most likely need to adjust this font size for your system!
-(defvar efs/default-font-size 150)
-(defvar efs/default-variable-font-size 150)
-
+(defvar efs/default-font-size 155)
+(defvar efs/default-variable-font-size 155)
 ;; Make frame transparency overridable
-(defvar efs/frame-transparency '(96 . 96))
+(defvar efs/frame-transparency '(95 . 95))
 
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -282,8 +277,7 @@
         '("~/org/work.org"
           "~/org/habit.org"
           "~/org/birthday.org"
-          "~/org/journal.org"
-          "~/org/metrics.org"))
+          "~/org/journal.org"))
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)
@@ -293,8 +287,8 @@
       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (setq org-refile-targets
-    '(("archive.org" :maxlevel . 1)
-      ("work.org" :maxlevel . 1)))
+    '(("work.org" :maxlevel . 1)
+      ("habit.org" :maxlevel . 1)))
 
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
@@ -381,11 +375,7 @@
 
       ("w" "Workflows")
       ("we" "Checking Email" entry (file+olp+datetree "~/org/journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-      ("m" "Metrics Capture")
-      ("mw" "Weight" table-line (file+headline "~/org/metrics.org" "Weight")
-       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)))
 
   (efs/org-font-setup))
 (global-set-key (kbd "C-c c") 'org-capture)
