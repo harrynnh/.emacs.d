@@ -524,7 +524,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
         ("habit.org" :maxlevel . 1)))
 
     ;; Save Org buffers after refiling!
-    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+   (advice-add 'org-agenda-refile :after 'org-save-all-org-buffers)
 
     (setq org-tag-alist
       '((:startgroup)
@@ -643,7 +643,16 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
     :hook (org-mode . efs/org-mode-visual-fill))
 
 #+end_src
-
+** Setting export directory
+#+begin_src emacs-lisp
+  (defun org-export-output-file-name-modified (orig-fun extension &optional subtreep pub-dir)
+    (unless pub-dir
+      (setq pub-dir "../output")
+      (unless (file-directory-p pub-dir)
+        (make-directory pub-dir)))
+    (apply orig-fun extension subtreep pub-dir nil))
+  (advice-add 'org-export-output-file-name :around #'org-export-output-file-name-modified)
+#+end_src
 ** Configure Babel Languages
 
 To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages.html][This page]] documents all of the languages that you can use with =org-babel=.

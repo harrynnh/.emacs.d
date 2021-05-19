@@ -291,7 +291,7 @@
       ("habit.org" :maxlevel . 1)))
 
   ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+ (advice-add 'org-agenda-refile :after 'org-save-all-org-buffers)
 
   (setq org-tag-alist
     '((:startgroup)
@@ -393,6 +393,14 @@
 
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
+
+(defun org-export-output-file-name-modified (orig-fun extension &optional subtreep pub-dir)
+  (unless pub-dir
+    (setq pub-dir "../output")
+    (unless (file-directory-p pub-dir)
+      (make-directory pub-dir)))
+  (apply orig-fun extension subtreep pub-dir nil))
+(advice-add 'org-export-output-file-name :around #'org-export-output-file-name-modified)
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
