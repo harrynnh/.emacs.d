@@ -441,6 +441,33 @@ This configuration requires gls to work. So what I did was to install coreutils 
   :hook (prog-mode . rainbow-delimiters-mode))
 
 #+end_src
+* Company Mode
+
+[[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
+
+We also use [[https://github.com/sebastiencs/company-box][company-box]] to further enhance the look of the completions with icons and better overall presentation.
+
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :init
+    ;;:after lsp-mode
+    :config
+    (add-hook 'after-init-hook 'global-company-mode)
+    (define-key company-mode-map (kbd "M-/") 'company-complete)
+    (define-key company-mode-map [remap completion-at-point] 'company-complete)
+    (define-key company-mode-map [remap indent-for-tab-command] 'company-indent-or-complete-common)
+    ;; :hook ((prog-mode-hook . company-mode)
+    ;;        (org-src-mode-hook . company-mode))
+    ;; :bind (:map company-active-map
+    ;;       ("<tab>" . company-complete-common-or-cycle))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.36))
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+#+end_src
+
 * Org Mode
 
 [[https://orgmode.org/][Org Mode]] is one of the hallmark features of Emacs.  It is a rich document editor, project planner, task and time tracker, blogging engine, and literate coding utility all wrapped up in one package.
@@ -754,28 +781,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 (electric-pair-mode 1)
 (setq electric-pair-preserve-balance nil)
 #+end_src
-** Company Mode
-
-[[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
-
-We also use [[https://github.com/sebastiencs/company-box][company-box]] to further enhance the look of the completions with icons and better overall presentation.
-
-#+begin_src emacs-lisp
-  (use-package company
-    :ensure t
-    ;;:after lsp-mode
-    ;;:config (add-hook 'prog-mode-hook 'company-mode)
-    :hook ((prog-mode . company-mode)
-           (org-src-mode-hook . company-mode))
-    :bind (:map company-active-map
-          ("<tab>" . company-complete-common-or-cycle))
-    :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.36))
-  (use-package company-box
-    :hook (company-mode . company-box-mode))
-#+end_src
-
 ** IDE Features with lsp-mode
 
 **** lsp-mode
@@ -795,12 +800,12 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   (use-package lsp-mode
     :ensure t
     ;;:commands (lsp lsp-deferred)
-    :config
-    (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_mypy.enabled" t t)
-     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-     ("pyls.plugins.pyls_black.enabled" t t)
-     ("pyls.plugins.pyls_isort.enabled" t t)))
+   ;;  :config
+   ;;  (lsp-register-custom-settings
+   ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
+   ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
+   ;;   ("pyls.plugins.pyls_black.enabled" t t)
+   ;;   ("pyls.plugins.pyls_isort.enabled" t t)))
     :hook ((lsp-mode . efs/lsp-mode-setup)
            (python-mode . lsp)
            (prog-mode-hook . lsp)

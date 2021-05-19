@@ -226,6 +226,25 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
+(use-package company
+  :ensure t
+  :init
+  ;;:after lsp-mode
+  :config
+  (add-hook 'after-init-hook 'global-company-mode)
+  (define-key company-mode-map (kbd "M-/") 'company-complete)
+  (define-key company-mode-map [remap completion-at-point] 'company-complete)
+  (define-key company-mode-map [remap indent-for-tab-command] 'company-indent-or-complete-common)
+  ;; :hook ((prog-mode-hook . company-mode)
+  ;;        (org-src-mode-hook . company-mode))
+  ;; :bind (:map company-active-map
+  ;;       ("<tab>" . company-complete-common-or-cycle))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.36))
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
@@ -469,20 +488,6 @@
 (electric-pair-mode 1)
 (setq electric-pair-preserve-balance nil)
 
-(use-package company
-  :ensure t
-  ;;:after lsp-mode
-  ;;:config (add-hook 'prog-mode-hook 'company-mode)
-  :hook ((prog-mode . company-mode)
-         (org-src-mode-hook . company-mode))
-  :bind (:map company-active-map
-        ("<tab>" . company-complete-common-or-cycle))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.36))
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
@@ -490,12 +495,12 @@
 (use-package lsp-mode
   :ensure t
   ;;:commands (lsp lsp-deferred)
-  :config
-  (lsp-register-custom-settings
- '(("pyls.plugins.pyls_mypy.enabled" t t)
-   ("pyls.plugins.pyls_mypy.live_mode" nil t)
-   ("pyls.plugins.pyls_black.enabled" t t)
-   ("pyls.plugins.pyls_isort.enabled" t t)))
+ ;;  :config
+ ;;  (lsp-register-custom-settings
+ ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
+ ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
+ ;;   ("pyls.plugins.pyls_black.enabled" t t)
+ ;;   ("pyls.plugins.pyls_isort.enabled" t t)))
   :hook ((lsp-mode . efs/lsp-mode-setup)
          (python-mode . lsp)
          (prog-mode-hook . lsp)
