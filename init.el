@@ -1,5 +1,5 @@
-(defvar efs/default-font-size 155)
-(defvar efs/default-variable-font-size 155)
+(defvar efs/default-font-size 160)
+(defvar efs/default-variable-font-size 160)
 ;; Make frame transparency overridable
 (defvar efs/frame-transparency '(95 . 95))
 
@@ -413,13 +413,13 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-(defun org-export-output-file-name-modified (orig-fun extension &optional subtreep pub-dir)
-  (unless pub-dir
-    (setq pub-dir "../output")
-    (unless (file-directory-p pub-dir)
-      (make-directory pub-dir)))
-  (apply orig-fun extension subtreep pub-dir nil))
-(advice-add 'org-export-output-file-name :around #'org-export-output-file-name-modified)
+;; (defun org-export-output-file-name-modified (orig-fun extension &optional subtreep pub-dir)
+;;   (unless pub-dir
+;;     (setq pub-dir "../output")
+;;     (unless (file-directory-p pub-dir)
+;;       (make-directory pub-dir)))
+;;   (apply orig-fun extension subtreep pub-dir nil))
+;; (advice-add 'org-export-output-file-name :around #'org-export-output-file-name-modified)
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -468,6 +468,156 @@
         org-tree-slide-deactivate-message "Presentation ended."
         org-tree-slide-header t
         org-image-actual-width nil))
+
+(use-package org-roam
+  :ensure t
+  :hook ((after-init . org-roam-mode))
+  :custom
+  (org-roam-db-update-method 'immediate)
+  (org-roam-directory "~/org/kalapa/")
+  ;; (org-roam-directory "/tmp/slip-box/")
+  (org-roam-index-file "index.org")
+  (org-roam-dailies-directory "scratch/")
+  :bind (:map org-roam-mode-map
+         (("C-c m l" . org-roam)
+          ("C-c m F" . org-roam-find-file)
+          ("C-c m r" . org-roam-find-ref)
+          ("C-c m ." . org-roam-find-directory)
+          ("C-c m >" . zp/org-roam-find-directory-testing)
+          ("C-c m d" . org-roam-dailies-map)
+          ("C-c m j" . org-roam-jump-to-index)
+          ("C-c m b" . org-roam-switch-to-buffer)
+          ("C-c m g" . org-roam-graph))
+         :map org-mode-map
+         (("C-c m i" . org-roam-insert)))
+  :config
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           (function org-roam-capture--get-point)
+           "%?"
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
+           :unnarrowed t))
+        org-roam-capture-ref-templates
+        '(("r" "ref" plain
+           (function org-roam-capture--get-point)
+           ""
+           :file-name "web/${slug}"
+           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
+           :unnarrowed t)
+          ("i" "incremental" plain
+           (function org-roam-capture--get-point)
+           "* %?\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
+           :file-name "web/${slug}"
+           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n"
+           :unnarrowed t
+           :empty-lines-before 1))
+        org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "scratch/%<%Y-%m-%d>"
+           :head "#+title: %<%Y-%m-%d>\n\n"
+           :add-created t))))
+
+(defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
+"Format of the title to use for `orb-templates'.")
+(use-package bibtex-completion
+  :ensure t
+  :after org)
+(use-package helm-bibtex
+  :ensure t
+  :after bibtex-completion)
+(use-package org-roam-bibtex
+    :ensure t
+    :hook (org-roam-mode . org-roam-bibtex-mode)
+    :bind (:map org-roam-bibtex-mode-map
+           (("C-c m f" . orb-find-non-ref-file))
+           :map org-mode-map
+           (("C-c m t" . orb-insert-non-ref)
+            ("C-c m a" . orb-note-actions)))
+    :init
+    :custom
+    (orb-autokey-format "%a%y")
+    (orb-templates
+     `(("r" "ref" plain
+        (function org-roam-capture--get-point)
+        ""
+        :file-name "refs/${citekey}"
+        :head ,(s-join "\n"
+                       (list
+                        (concat "#+title: "
+                                orb-title-format)
+                        "#+roam_key: ${ref}"
+                        "#+created: %U"
+                        "#+last_modified: %U\n\n"))
+        :unnarrowed t)
+       ("p" "ref + physical" plain
+        (function org-roam-capture--get-point)
+        ""
+        :file-name "refs/${citekey}"
+        :head ,(s-join "\n"
+                       (list
+                        (concat "#+title: "
+                                orb-title-format)
+                        "#+roam_key: ${ref}"
+                        ""
+                        "* Notes :physical:")))
+       ("n" "ref + noter" plain
+        (function org-roam-capture--get-point)
+        ""
+        :file-name "refs/${citekey}"
+        :head ,(s-join "\n"
+                       (list
+                        (concat "#+title: "
+                                orb-title-format)
+                        "#+roam_key: ${ref}"
+                        ""
+                        "* Notes :noter:"
+                        ":PROPERTIES:"
+                        ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
+                        ":NOTER_PAGE:"
+                        ":END:"))))))
+
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+
+(use-package bibtex
+  :config
+  (setq bibtex-autokey-year-length '4))
+
+;; reftex
+(use-package reftex
+  :commands turn-on-reftex
+  :init
+  (progn
+    (setq reftex-default-bibliography '("~/org/bib/ref.bib"))
+    (setq reftex-plug-intoAUCTex t)))
+
+(use-package org-ref
+  :ensure t
+  :after org
+  :config
+  (setq org-ref-bibliography-notes "~/org/bib/notes.org"
+        org-ref-default-bibliography '("~/org/bib/ref.bib")
+        org-ref-pdf-directory "~/org/bib/pdf/"
+        org-ref-show-broken-links nil))
+;;(setq bibtex-dialect 'biblatex)
+
+(with-eval-after-load "ox-latex"
+    (add-to-list 'org-latex-classes
+          '("koma-article"
+             "\\documentclass[
+  ,a4paper
+  ,DIV=12
+  ,12pt
+  ,abstract
+  ]{scrartcl}
+  \\author{Harry Nguyen}"
+             ("\\section{%s}" . "\\section*{%s}")
+             ("\\subsection{%s}" . "\\subsection*{%s}")
+             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+             ("\\paragraph{%s}" . "\\paragraph*{%s}")
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 ;; convert org to html with jekyll
 (setq org-publish-project-alist
