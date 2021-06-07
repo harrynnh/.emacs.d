@@ -2,6 +2,7 @@
 (defvar efs/default-variable-font-size 160)
 ;; Make frame transparency overridable
 (defvar efs/frame-transparency '(95 . 95))
+(setq mac-option-modifier 'meta)
 
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -57,49 +58,45 @@
 (setq gc-cons-threshold (* 2 1000 1000))
 
 (setq inhibit-startup-message t)
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
 
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (tooltip-mode -1)           ; Disable tooltips
-  (set-fringe-mode 10)        ; Give some breathing room
+(menu-bar-mode -1)            ; Disable the menu bar
+;; Set up the visible bell
+(setq visible-bell t)
 
-  (menu-bar-mode -1)            ; Disable the menu bar
+(column-number-mode)
+(global-display-line-numbers-mode t)
 
-  ;; Set up the visible bell
-  (setq visible-bell t)
+;; Set frame transparency
+(set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
+(add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
+(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-  (column-number-mode)
-  (global-display-line-numbers-mode t)
-
-  ;; Set frame transparency
-  (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-  (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
-  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-  ;; Disable line numbers for some modes
-  (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  shell-mode-hook
-                  treemacs-mode-hook
-                  eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 ;; Wrap long lines
 (global-visual-line-mode 1)
 
 (set-face-attribute 'default nil :font "Fira Mono for Powerline" :height efs/default-font-size)
-
- ;; Set the fixed pitch face
- (set-face-attribute 'fixed-pitch nil :font "Fira Mono for Powerline" :height efs/default-font-size)
-
- ;; Set the variable pitch face
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil :font "Fira Mono for Powerline" :height efs/default-font-size)
+;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
 (use-package command-log-mode
   :commands command-log-mode)
 
 (use-package doom-themes
-  :init (load-theme 'doom-gruvbox t))
+  :init (load-theme 'doom-zenburn t))
 
 (use-package all-the-icons)
 
@@ -240,9 +237,11 @@
   ;; :bind (:map company-active-map
   ;;       ("<tab>" . company-complete-common-or-cycle))
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.36))
+  (company-minimum-prefix-length 3)
+  (company-idle-delay 0.36)
+  (company-tooltip-align-annotations 't))
 (use-package company-box
+  :after company
   :hook (company-mode . company-box-mode))
 
 (defun efs/org-font-setup ()
@@ -471,7 +470,7 @@
 
 (use-package org-roam
   :ensure t
-  :hook ((after-init . org-roam-mode))
+  :hook (after-init . org-roam-mode)
   :custom
   (org-roam-db-update-method 'immediate)
   (org-roam-directory "~/org/kalapa/")
@@ -483,7 +482,6 @@
           ("C-c m F" . org-roam-find-file)
           ("C-c m r" . org-roam-find-ref)
           ("C-c m ." . org-roam-find-directory)
-          ("C-c m >" . zp/org-roam-find-directory-testing)
           ("C-c m d" . org-roam-dailies-map)
           ("C-c m j" . org-roam-jump-to-index)
           ("C-c m b" . org-roam-switch-to-buffer)
@@ -495,7 +493,7 @@
         '(("d" "default" plain
            (function org-roam-capture--get-point)
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :file-name "%<%Y%m%d%H%M%S>_${slug}"
            :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
            :unnarrowed t))
         org-roam-capture-ref-templates
@@ -520,14 +518,18 @@
            :head "#+title: %<%Y-%m-%d>\n\n"
            :add-created t))))
 
+(use-package org-ref
+  :ensure t
+  :after (org org-roam)
+  :config
+  (setq org-ref-bibliography-notes "~/org/bib/notes.org"
+        org-ref-default-bibliography '("~/org/bib/ref.bib")
+        org-ref-pdf-directory "~/papers/"
+        org-ref-show-broken-links nil))
+;;(setq bibtex-dialect 'biblatex)
+
 (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
 "Format of the title to use for `orb-templates'.")
-(use-package bibtex-completion
-  :ensure t
-  :after org)
-(use-package helm-bibtex
-  :ensure t
-  :after bibtex-completion)
 (use-package org-roam-bibtex
     :ensure t
     :hook (org-roam-mode . org-roam-bibtex-mode)
@@ -581,28 +583,6 @@
 
 (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 
-(use-package bibtex
-  :config
-  (setq bibtex-autokey-year-length '4))
-
-;; reftex
-(use-package reftex
-  :commands turn-on-reftex
-  :init
-  (progn
-    (setq reftex-default-bibliography '("~/org/bib/ref.bib"))
-    (setq reftex-plug-intoAUCTex t)))
-
-(use-package org-ref
-  :ensure t
-  :after org
-  :config
-  (setq org-ref-bibliography-notes "~/org/bib/notes.org"
-        org-ref-default-bibliography '("~/org/bib/ref.bib")
-        org-ref-pdf-directory "~/org/bib/pdf/"
-        org-ref-show-broken-links nil))
-;;(setq bibtex-dialect 'biblatex)
-
 (with-eval-after-load "ox-latex"
     (add-to-list 'org-latex-classes
           '("koma-article"
@@ -618,6 +598,26 @@
              ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
              ("\\paragraph{%s}" . "\\paragraph*{%s}")
              ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+(use-package pdf-tools
+ :pin manual
+ :magic ("%PDF" . pdf-view-mode)
+ :config
+ (pdf-tools-install :no-query)
+ (setq pdf-view-use-scaling t)
+ (setq-default pdf-view-display-size 'fit-page)
+ ;; automatically annotate highlights
+ (setq pdf-annot-activate-created-annotations t)
+ ;; Speed up start up by not looking for unicode symbols
+ (setq pdf-view-use-unicode-ligther nil)
+ ;; use normal isearch
+ (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+ ;; turn off cua so copy works
+ (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+ (setq pdf-view-resize-factor 1.1)
+ (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+ (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+ (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
 
 ;; convert org to html with jekyll
 (setq org-publish-project-alist
@@ -695,7 +695,8 @@
 (use-package yasnippet
 :ensure t
 :init
-(yas-global-mode 1))
+(yas-global-mode 1)
+:after lsp)
 
 ;; (eval-after-load 'python-mode
 ;;   '(bind-key "C-RET" 'python-shell-send-statement))
@@ -714,27 +715,27 @@
 ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
 
 ;; Cancel fancy comments ess r
-    (defun my-ess-settings ()
-      (setq-local ess-indent-with-fancy-comments nil))
-    ;; Bindings for pipe
-    (defun my_pipe_operator ()
-      "R/ESS %>% operator"
-      (interactive)
-      (just-one-space 1)
-      (insert "%>%")
-      (reindent-then-newline-and-indent))
+(defun my-ess-settings ()
+  (setq-local ess-indent-with-fancy-comments nil))
+;; Bindings for pipe
+(defun my_pipe_operator ()
+  "R/ESS %>% operator"
+  (interactive)
+  (just-one-space 1)
+  (insert "%>%")
+  (reindent-then-newline-and-indent))
 ;; ESS-R setup
-    (use-package ess
-    :ensure t
-    :init (require 'ess-site)
-    :hook ((ess-mode . my-ess-settings)
-           (org-babel-after-execute . org-display-inline-images))
-    :bind (:map ess-mode-map
-         (";" . ess-insert-assign)
-         ("M-_" . my_pipe_operator)
-         :map inferior-ess-mode-map
-         (";" . ess-insert-assign)
-         ("M-_" . my_pipe_operator)))
+(use-package ess
+  :ensure t
+  :init (require 'ess-site)
+  :hook ((ess-mode . my-ess-settings)
+         (org-babel-after-execute . org-display-inline-images))
+  :bind (:map ess-mode-map
+              (";" . ess-insert-assign)
+              ("M-_" . my_pipe_operator)
+              :map inferior-ess-mode-map
+              (";" . ess-insert-assign)
+              ("M-_" . my_pipe_operator)))
 
 (use-package vterm
   :commands vterm

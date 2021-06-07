@@ -11,7 +11,7 @@ This config is based on the Emacs from scratch series by David Wilson.
   (defvar efs/default-variable-font-size 160)
   ;; Make frame transparency overridable
   (defvar efs/frame-transparency '(95 . 95))
-
+  (setq mac-option-modifier 'meta)
 #+end_src
 
 * Startup Performance
@@ -108,35 +108,32 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 This section configures basic UI settings that remove unneeded elements to make Emacs look a lot more minimal and modern.  If you're just getting started in Emacs, the menu bar might be helpful so you can remove the =(menu-bar-mode -1)= line if you'd like to still see that.
 
 #+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (tooltip-mode -1)           ; Disable tooltips
+  (set-fringe-mode 10)        ; Give some breathing room
 
-    (setq inhibit-startup-message t)
+  (menu-bar-mode -1)            ; Disable the menu bar
+  ;; Set up the visible bell
+  (setq visible-bell t)
 
-    (scroll-bar-mode -1)        ; Disable visible scrollbar
-    (tool-bar-mode -1)          ; Disable the toolbar
-    (tooltip-mode -1)           ; Disable tooltips
-    (set-fringe-mode 10)        ; Give some breathing room
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
 
-    (menu-bar-mode -1)            ; Disable the menu bar
+  ;; Set frame transparency
+  (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
+  (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-    ;; Set up the visible bell
-    (setq visible-bell t)
-
-    (column-number-mode)
-    (global-display-line-numbers-mode t)
-
-    ;; Set frame transparency
-    (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-    (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
-    (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-    (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-    ;; Disable line numbers for some modes
-    (dolist (mode '(org-mode-hook
-                    term-mode-hook
-                    shell-mode-hook
-                    treemacs-mode-hook
-                    eshell-mode-hook))
-      (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;; Disable line numbers for some modes
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  treemacs-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
   ;; Wrap long lines
   (global-visual-line-mode 1)
 #+end_src
@@ -147,13 +144,11 @@ This section configures basic UI settings that remove unneeded elements to make 
 
  #+begin_src emacs-lisp
 
- (set-face-attribute 'default nil :font "Fira Mono for Powerline" :height efs/default-font-size)
-
- ;; Set the fixed pitch face
- (set-face-attribute 'fixed-pitch nil :font "Fira Mono for Powerline" :height efs/default-font-size)
-
- ;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+   (set-face-attribute 'default nil :font "Fira Mono for Powerline" :height efs/default-font-size)
+   ;; Set the fixed pitch face
+   (set-face-attribute 'fixed-pitch nil :font "Fira Mono for Powerline" :height efs/default-font-size)
+   ;; Set the variable pitch face
+   (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
  #+end_src
 
@@ -176,8 +171,8 @@ This section configures basic UI settings that remove unneeded elements to make 
 
 #+begin_src emacs-lisp
 
-(use-package doom-themes
-  :init (load-theme 'doom-gruvbox t))
+  (use-package doom-themes
+    :init (load-theme 'doom-zenburn t))
 
 #+end_src
 
@@ -189,11 +184,11 @@ This section configures basic UI settings that remove unneeded elements to make 
 
 #+begin_src emacs-lisp
 
-(use-package all-the-icons)
+  (use-package all-the-icons)
 
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
+  (use-package doom-modeline
+    :init (doom-modeline-mode 1)
+    :custom ((doom-modeline-height 15)))
 
 #+end_src
 
@@ -384,11 +379,12 @@ This configuration requires gls to work. So what I did was to install coreutils 
   (use-package dired-hide-dotfiles
     :hook (dired-mode . dired-hide-dotfiles-mode))
 #+end_src
+
 * Flycheck
 #+begin_src emacs-lisp
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode))
 #+end_src
 
 * Projectile
@@ -414,6 +410,7 @@ This configuration requires gls to work. So what I did was to install coreutils 
     :config (counsel-projectile-mode))
 
 #+end_src
+
 * Magit
 
 #+begin_src emacs-lisp
@@ -437,10 +434,11 @@ This configuration requires gls to work. So what I did was to install coreutils 
 
 #+begin_src emacs-lisp
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
 
 #+end_src
+
 * Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
@@ -462,9 +460,11 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
     ;; :bind (:map company-active-map
     ;;       ("<tab>" . company-complete-common-or-cycle))
     :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.36))
+    (company-minimum-prefix-length 3)
+    (company-idle-delay 0.36)
+    (company-tooltip-align-annotations 't))
   (use-package company-box
+    :after company
     :hook (company-mode . company-box-mode))
 #+end_src
 
@@ -735,80 +735,94 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 ** Org-tree-slide
 #+begin_src emacs-lisp
-(defun efs/org-start-presentation ()
-  (setq text-scale-mode-amount 3)
-  (org-display-inline-images)
-  (text-scale-mode 1))
+  (defun efs/org-start-presentation ()
+    (setq text-scale-mode-amount 3)
+    (org-display-inline-images)
+    (text-scale-mode 1))
 
-(defun efs/org-end-presentation ()
-  (text-scale-mode 0))
+  (defun efs/org-end-presentation ()
+    (text-scale-mode 0))
 
-(use-package org-tree-slide
-  :defer t
-  :after org
-  :commands org-tree-slide-mode
-  :hook ((org-tree-slide-play . efs/org-start-presentation)
-         (org-tree-slide-stop . efs/org-end-presentation))
-  :config
-  (setq org-tree-slide-slide-in-effect t
-        org-tree-slide-activate-message "Presentation started."
-        org-tree-slide-deactivate-message "Presentation ended."
-        org-tree-slide-header t
-        org-image-actual-width nil))
+  (use-package org-tree-slide
+    :defer t
+    :after org
+    :commands org-tree-slide-mode
+    :hook ((org-tree-slide-play . efs/org-start-presentation)
+           (org-tree-slide-stop . efs/org-end-presentation))
+    :config
+    (setq org-tree-slide-slide-in-effect t
+          org-tree-slide-activate-message "Presentation started."
+          org-tree-slide-deactivate-message "Presentation ended."
+          org-tree-slide-header t
+          org-image-actual-width nil))
 #+end_src
 
 ** Org-roam
 #+begin_src emacs-lisp
-(use-package org-roam
-  :ensure t
-  :hook ((after-init . org-roam-mode))
-  :custom
-  (org-roam-db-update-method 'immediate)
-  (org-roam-directory "~/org/kalapa/")
-  ;; (org-roam-directory "/tmp/slip-box/")
-  (org-roam-index-file "index.org")
-  (org-roam-dailies-directory "scratch/")
-  :bind (:map org-roam-mode-map
-         (("C-c m l" . org-roam)
-          ("C-c m F" . org-roam-find-file)
-          ("C-c m r" . org-roam-find-ref)
-          ("C-c m ." . org-roam-find-directory)
-          ("C-c m >" . zp/org-roam-find-directory-testing)
-          ("C-c m d" . org-roam-dailies-map)
-          ("C-c m j" . org-roam-jump-to-index)
-          ("C-c m b" . org-roam-switch-to-buffer)
-          ("C-c m g" . org-roam-graph))
-         :map org-mode-map
-         (("C-c m i" . org-roam-insert)))
-  :config
-  (setq org-roam-capture-templates
-        '(("d" "default" plain
-           (function org-roam-capture--get-point)
-           "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
-           :unnarrowed t))
-        org-roam-capture-ref-templates
-        '(("r" "ref" plain
-           (function org-roam-capture--get-point)
-           ""
-           :file-name "web/${slug}"
-           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
-           :unnarrowed t)
-          ("i" "incremental" plain
-           (function org-roam-capture--get-point)
-           "* %?\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
-           :file-name "web/${slug}"
-           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n"
-           :unnarrowed t
-           :empty-lines-before 1))
-        org-roam-dailies-capture-templates
-        '(("d" "default" entry
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "scratch/%<%Y-%m-%d>"
-           :head "#+title: %<%Y-%m-%d>\n\n"
-           :add-created t))))
+  (use-package org-roam
+    :ensure t
+    :hook (after-init . org-roam-mode)
+    :custom
+    (org-roam-db-update-method 'immediate)
+    (org-roam-directory "~/org/kalapa/")
+    ;; (org-roam-directory "/tmp/slip-box/")
+    (org-roam-index-file "index.org")
+    (org-roam-dailies-directory "scratch/")
+    :bind (:map org-roam-mode-map
+           (("C-c m l" . org-roam)
+            ("C-c m F" . org-roam-find-file)
+            ("C-c m r" . org-roam-find-ref)
+            ("C-c m ." . org-roam-find-directory)
+            ("C-c m d" . org-roam-dailies-map)
+            ("C-c m j" . org-roam-jump-to-index)
+            ("C-c m b" . org-roam-switch-to-buffer)
+            ("C-c m g" . org-roam-graph))
+           :map org-mode-map
+           (("C-c m i" . org-roam-insert)))
+    :config
+    (setq org-roam-capture-templates
+          '(("d" "default" plain
+             (function org-roam-capture--get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>_${slug}"
+             :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
+             :unnarrowed t))
+          org-roam-capture-ref-templates
+          '(("r" "ref" plain
+             (function org-roam-capture--get-point)
+             ""
+             :file-name "web/${slug}"
+             :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
+             :unnarrowed t)
+            ("i" "incremental" plain
+             (function org-roam-capture--get-point)
+             "* %?\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
+             :file-name "web/${slug}"
+             :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n"
+             :unnarrowed t
+             :empty-lines-before 1))
+          org-roam-dailies-capture-templates
+          '(("d" "default" entry
+             #'org-roam-capture--get-point
+             "* %?"
+             :file-name "scratch/%<%Y-%m-%d>"
+             :head "#+title: %<%Y-%m-%d>\n\n"
+             :add-created t))))
+#+end_src
+
+** Org ref
+
+#+begin_src emacs-lisp
+  (use-package org-ref
+    :ensure t
+    :after (org org-roam)
+    :config
+    (setq org-ref-bibliography-notes "~/org/bib/notes.org"
+          org-ref-default-bibliography '("~/org/bib/ref.bib")
+          org-ref-pdf-directory "~/papers/"
+          org-ref-show-broken-links nil))
+  ;;(setq bibtex-dialect 'biblatex)
+
 #+end_src
 
 ** Org-roam-bibtex
@@ -816,12 +830,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+begin_src emacs-lisp
   (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
   "Format of the title to use for `orb-templates'.")
-  (use-package bibtex-completion
-    :ensure t
-    :after org)
-  (use-package helm-bibtex
-    :ensure t
-    :after bibtex-completion)
   (use-package org-roam-bibtex
       :ensure t
       :hook (org-roam-mode . org-roam-bibtex-mode)
@@ -881,50 +889,46 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
    #+end_src
 
-** Org ref
-
-#+begin_src emacs-lisp
-(use-package bibtex
-  :config
-  (setq bibtex-autokey-year-length '4))
-
-;; reftex
-(use-package reftex
-  :commands turn-on-reftex
-  :init
-  (progn
-    (setq reftex-default-bibliography '("~/org/bib/ref.bib"))
-    (setq reftex-plug-intoAUCTex t)))
-
-(use-package org-ref
-  :ensure t
-  :after org
-  :config
-  (setq org-ref-bibliography-notes "~/org/bib/notes.org"
-        org-ref-default-bibliography '("~/org/bib/ref.bib")
-        org-ref-pdf-directory "~/org/bib/pdf/"
-        org-ref-show-broken-links nil))
-;;(setq bibtex-dialect 'biblatex)
-
-#+end_src
-
 ** Latex classes
 #+begin_src emacs-lisp
-(with-eval-after-load "ox-latex"
-    (add-to-list 'org-latex-classes
-          '("koma-article"
-             "\\documentclass[
-  ,a4paper
-  ,DIV=12
-  ,12pt
-  ,abstract
-  ]{scrartcl}
-  \\author{Harry Nguyen}"
-             ("\\section{%s}" . "\\section*{%s}")
-             ("\\subsection{%s}" . "\\subsection*{%s}")
-             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-             ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+  (with-eval-after-load "ox-latex"
+      (add-to-list 'org-latex-classes
+            '("koma-article"
+               "\\documentclass[
+    ,a4paper
+    ,DIV=12
+    ,12pt
+    ,abstract
+    ]{scrartcl}
+    \\author{Harry Nguyen}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+#+end_src
+
+* Pdf-tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+   :pin manual
+   :magic ("%PDF" . pdf-view-mode)
+   :config
+   (pdf-tools-install :no-query)
+   (setq pdf-view-use-scaling t)
+   (setq-default pdf-view-display-size 'fit-page)
+   ;; automatically annotate highlights
+   (setq pdf-annot-activate-created-annotations t)
+   ;; Speed up start up by not looking for unicode symbols
+   (setq pdf-view-use-unicode-ligther nil)
+   ;; use normal isearch
+   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+   ;; turn off cua so copy works
+   (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+   (setq pdf-view-resize-factor 1.1)
+   (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+   (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+   (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
 #+end_src
 
 * Publish my blog with jekyll
@@ -945,11 +949,12 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
            :body-only t
            )))
 #+end_src
+
 * Languages
 ** Balance brackets
 #+begin_src emacs-lisp
-(electric-pair-mode 1)
-(setq electric-pair-preserve-balance nil)
+  (electric-pair-mode 1)
+  (setq electric-pair-preserve-balance nil)
 #+end_src
 ** IDE Features with lsp-mode
 
@@ -1057,10 +1062,11 @@ Try these commands with =M-x=:
 
 ** Yasnippet
 #+begin_src emacs-lisp
-(use-package yasnippet
-:ensure t
-:init
-(yas-global-mode 1))
+  (use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1)
+  :after lsp)
 #+end_src
 ** Python
 
@@ -1103,28 +1109,28 @@ ESS R somehow messes up the lsp project root variable. What I do is load ess aft
 Lsp doesn't complete columns. If I want that feature. I just need to unhook lsp from ess.
 There's only one annoying thing that I can live with is that if I defer loading after lsp, bindings don't work. So when I need to load a new dir, I turn on after lsp, open a python file, then turn off again.
 #+begin_src emacs-lisp
-      ;; Cancel fancy comments ess r
-      (defun my-ess-settings ()
-        (setq-local ess-indent-with-fancy-comments nil))
-      ;; Bindings for pipe
-      (defun my_pipe_operator ()
-        "R/ESS %>% operator"
-        (interactive)
-        (just-one-space 1)
-        (insert "%>%")
-        (reindent-then-newline-and-indent))
+  ;; Cancel fancy comments ess r
+  (defun my-ess-settings ()
+    (setq-local ess-indent-with-fancy-comments nil))
+  ;; Bindings for pipe
+  (defun my_pipe_operator ()
+    "R/ESS %>% operator"
+    (interactive)
+    (just-one-space 1)
+    (insert "%>%")
+    (reindent-then-newline-and-indent))
   ;; ESS-R setup
-      (use-package ess
-      :ensure t
-      :init (require 'ess-site)
-      :hook ((ess-mode . my-ess-settings)
-             (org-babel-after-execute . org-display-inline-images))
-      :bind (:map ess-mode-map
-           (";" . ess-insert-assign)
-           ("M-_" . my_pipe_operator)
-           :map inferior-ess-mode-map
-           (";" . ess-insert-assign)
-           ("M-_" . my_pipe_operator)))
+  (use-package ess
+    :ensure t
+    :init (require 'ess-site)
+    :hook ((ess-mode . my-ess-settings)
+           (org-babel-after-execute . org-display-inline-images))
+    :bind (:map ess-mode-map
+                (";" . ess-insert-assign)
+                ("M-_" . my_pipe_operator)
+                :map inferior-ess-mode-map
+                (";" . ess-insert-assign)
+                ("M-_" . my_pipe_operator)))
 
  #+end_src
  
