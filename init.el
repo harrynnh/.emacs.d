@@ -3,6 +3,7 @@
 ;; Make frame transparency overridable
 (defvar efs/frame-transparency '(95 . 95))
 (setq mac-option-modifier 'meta)
+(setq load-prefer-newer t)
 
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -189,9 +190,9 @@
   (use-package dired-hide-dotfiles
     :hook (dired-mode . dired-hide-dotfiles-mode))
 
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
+;; (use-package flycheck
+;;   :ensure t
+;;   :init (global-flycheck-mode))
 
 (use-package projectile
   :diminish projectile-mode
@@ -286,6 +287,7 @@
   :bind (:map org-mode-map
               ("C-c i". org-toggle-item))
   :config
+  (setq org-image-actual-width nil)
   (setq org-ellipsis " ▾")
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
@@ -470,53 +472,35 @@
 
 (use-package org-roam
   :ensure t
-  :hook (after-init . org-roam-mode)
+  ;; :hook (after-init . org-roam-mode)
+  :init
+  (setq org-roam-v2-ack t)
+  :bind (("C-c m l" . org-roam-buffer-toggle)
+       ("C-c m f" . org-roam-node-find)
+       ;; ("C-c m r" . org-roam-find-ref)
+       ("C-c m j" . org-roam-jump-to-index)
+       ;; ("C-c m b" . org-roam-switch-to-buffer)
+       ;; ("C-c m g" . org-roam-graph)
+       ("C-c m d" . org-roam-dailies-capture-today)
+       :map org-mode-map
+       (("C-c m i" . org-roam-node-insert)))
   :custom
-  (org-roam-db-update-method 'immediate)
   (org-roam-directory "~/org/kalapa/")
-  ;; (org-roam-directory "/tmp/slip-box/")
   (org-roam-index-file "index.org")
   (org-roam-dailies-directory "scratch/")
-  :bind (:map org-roam-mode-map
-         (("C-c m l" . org-roam)
-          ("C-c m F" . org-roam-find-file)
-          ("C-c m r" . org-roam-find-ref)
-          ("C-c m ." . org-roam-find-directory)
-          ("C-c m d" . org-roam-dailies-map)
-          ("C-c m j" . org-roam-jump-to-index)
-          ("C-c m b" . org-roam-switch-to-buffer)
-          ("C-c m g" . org-roam-graph))
-         :map org-mode-map
-         (("C-c m i" . org-roam-insert)))
   :config
   (setq org-roam-capture-templates
-        '(("d" "default" plain
-           (function org-roam-capture--get-point)
-           "%?"
-           :file-name "%<%Y%m%d%H%M%S>_${slug}"
-           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
-           :unnarrowed t))
-        org-roam-capture-ref-templates
-        '(("r" "ref" plain
-           (function org-roam-capture--get-point)
-           ""
-           :file-name "web/${slug}"
-           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
-           :unnarrowed t)
-          ("i" "incremental" plain
-           (function org-roam-capture--get-point)
-           "* %?\n%(zp/org-protocol-insert-selection-dwim \"%i\")"
-           :file-name "web/${slug}"
-           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n"
-           :unnarrowed t
-           :empty-lines-before 1))
-        org-roam-dailies-capture-templates
-        '(("d" "default" entry
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "scratch/%<%Y-%m-%d>"
-           :head "#+title: %<%Y-%m-%d>\n\n"
-           :add-created t))))
+    '(("d" "default" plain
+       "%?"
+       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                          "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n")
+       :unnarrowed t))
+    org-roam-dailies-capture-templates
+    '(("d" "default" entry
+       "* %?"
+       :if-new (file+head "%<%Y-%m-%d>.org"
+                          "#+title: %<%Y-%m-%d>\n\n")
+       :add-created t))))
 
 (use-package org-ref
   :ensure t
@@ -597,7 +581,17 @@
              ("\\subsection{%s}" . "\\subsection*{%s}")
              ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
              ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+    '("article"
+      "\\documentclass[11pt,article,oneside]{memoir}"
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")       
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+    ))
 
 (use-package pdf-tools
  :pin manual
@@ -645,7 +639,7 @@
 (use-package lsp-mode
   :ensure t
   ;;:commands (lsp lsp-deferred)
- ;;  :config
+ ;; :config
  ;;  (lsp-register-custom-settings
  ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
  ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
@@ -657,19 +651,26 @@
          (ess-mode . lsp)
          (lsp-mode-hook . lsp-enable-which-key-integration))
   :init
-  (setq lsp-keymap-prefix "C-c l"))
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-completion-provider :none)
+  (setq lsp-diagnostics-provider :none)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-completion-show-detail nil)
+  (setq lsp-completion-show-kind nil)
+  (setq lsp-ui-doc-enable nil))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :config
-  (setq lsp-ui-sideline-show-hover t
+  (setq lsp-ui-sideline-show-hover nil
               lsp-ui-sideline-delay 0.5
               lsp-ui-doc-delay 5
               lsp-ui-sideline-ignore-duplicates t
               lsp-ui-doc-position 'bottom
               lsp-ui-doc-alignment 'frame
               lsp-ui-doc-header nil
-              lsp-ui-doc-include-signature t
+              ;; lsp-ui-doc-include-signature t
               lsp-ui-doc-use-childframe t))
 (use-package dap-mode
   :after lsp-mode)
