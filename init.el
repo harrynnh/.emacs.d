@@ -87,9 +87,9 @@
 ;; Wrap long lines
 (global-visual-line-mode 1)
 
-(set-face-attribute 'default nil :font "Fira Mono for Powerline" :height efs/default-font-size)
+(set-face-attribute 'default nil :font "Fira Code" :height efs/default-font-size)
 ;; Set the fixed pitch face
-(set-face-attribute 'fixed-pitch nil :font "Fira Mono for Powerline" :height efs/default-font-size)
+(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height efs/default-font-size)
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
@@ -294,10 +294,9 @@
   (setq org-log-into-drawer t)
 
   (setq org-agenda-files
-        '("~/org/work.org"
-          "~/org/habit.org"
-          "~/org/birthday.org"
-          "~/org/journal.org"))
+        '("~/Dropbox/org/work.org"
+          "~/Dropbox/org/habit.org"
+          "~/Dropbox/org/birthday.org"))
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)
@@ -377,24 +376,24 @@
 
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/org/work.org" "Inbox")
+      ("tt" "Task" entry (file+olp "~/Dropbox/org/work.org" "Inbox")
            "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
-           (file+olp+datetree "~/org/journal.org")
+           (file+olp+datetree "~/Dropbox/org/journal.org")
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
            :clock-in :clock-resume
            :empty-lines 1)
       ("jm" "Meeting" entry
-           (file+olp+datetree "~/org/journal.org")
+           (file+olp+datetree "~/Dropbox/org/journal.org")
            "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
 
       ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/org/journal.org")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Dropbox/org/journal.org")
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)))
 
   (efs/org-font-setup))
@@ -485,14 +484,15 @@
        :map org-mode-map
        (("C-c m i" . org-roam-node-insert)))
   :custom
-  (org-roam-directory "~/org/kalapa/")
+  (org-roam-directory "~/Dropbox/org/kalapa/")
   (org-roam-index-file "index.org")
   (org-roam-dailies-directory "scratch/")
   :config
+  (org-roam-setup)
   (setq org-roam-capture-templates
     '(("d" "default" plain
        "%?"
-       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+       :if-new (file+head "%<%Y%m%d%H%M%S>_${slug}.org"
                           "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n")
        :unnarrowed t))
     org-roam-dailies-capture-templates
@@ -506,9 +506,9 @@
   :ensure t
   :after (org org-roam)
   :config
-  (setq org-ref-bibliography-notes "~/org/bib/notes.org"
-        org-ref-default-bibliography '("~/org/bib/ref.bib")
-        org-ref-pdf-directory "~/papers/"
+  (setq org-ref-bibliography-notes "~/Dropbox/org/bib/notes.org"
+        org-ref-default-bibliography '("~/Dropbox/org/bib/ref.bib")
+        org-ref-pdf-directory "~/Dropbox/papers/"
         org-ref-show-broken-links nil))
 ;;(setq bibtex-dialect 'biblatex)
 
@@ -710,9 +710,9 @@
 (use-package pyvenv
   :demand t
   :config
-  (setq pyvenv-workon "emacs")  ; Default venv
-  (pyvenv-tracking-mode 1))
-  ;;(pyvenv-mode 1))
+  (setq pyvenv-workon "emacs"))  ; Default venv
+  ;; (pyvenv-tracking-mode 1))
+  ;; (pyvenv-mode 1))
 ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
 
 ;; Cancel fancy comments ess r
