@@ -97,7 +97,7 @@
   :commands command-log-mode)
 
 (use-package doom-themes
-  :init (load-theme 'doom-zenburn t))
+  :init (load-theme 'doom-miramare t))
 
 (use-package all-the-icons)
 
@@ -276,7 +276,7 @@
   (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 
 (defun efs/org-mode-setup ()
-  (org-indent-mode)
+  ;; (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1))
 
@@ -329,7 +329,7 @@
   ;; Configure custom agenda views
   (setq org-agenda-custom-commands
    '(("d" "Dashboard"
-     ((agenda "" ((org-deadline-warning-days 7)))
+     ((agenda "" ((org-deadline-warning-days 14)))
       (todo "NEXT"
         ((org-agenda-overriding-header "Next Tasks")))
       (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
@@ -425,7 +425,10 @@
   (org-babel-do-load-languages
       'org-babel-load-languages
       '((emacs-lisp . t)
-      (python . t)))
+	(python . t)
+	(R . t)
+	(jupyter . t)
+	(plantuml . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
@@ -435,8 +438,9 @@
 
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python"))
-  (add-to-list 'org-structure-template-alist '("r" . "src R")))
+  (add-to-list 'org-structure-template-alist '("py" . "src jupyter-python"))
+  (add-to-list 'org-structure-template-alist '("r" . "src R"))
+  (add-to-list 'org-structure-template-alist '("st" . "src jupyter-stata")))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -639,17 +643,21 @@
 (use-package lsp-mode
   :ensure t
   ;;:commands (lsp lsp-deferred)
- ;; :config
- ;;  (lsp-register-custom-settings
- ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
- ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
- ;;   ("pyls.plugins.pyls_black.enabled" t t)
- ;;   ("pyls.plugins.pyls_isort.enabled" t t)))
+  ;; :config
+  ;;  (lsp-register-custom-settings
+  ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
+  ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
+  ;;   ("pyls.plugins.pyls_black.enabled" t t)
+  ;;   ("pyls.plugins.pyls_isort.enabled" t t)))
   :hook ((lsp-mode . efs/lsp-mode-setup)
-         (python-mode . lsp)
-         (prog-mode-hook . lsp)
-         (ess-mode . lsp)
-         (lsp-mode-hook . lsp-enable-which-key-integration))
+	 (python-mode . lsp)
+	 (c++-mode . lsp)
+	 (prog-mode-hook . lsp)
+	 (clojure-mode . lsp)
+	 (clojurescript-mode . lsp)
+	 (clojurec-mode . lsp)
+	 ;; (ess-mode . lsp)
+	 (lsp-mode-hook . lsp-enable-which-key-integration))
   :init
   (setq lsp-keymap-prefix "C-c l")
   (setq lsp-completion-provider :none)
@@ -658,20 +666,23 @@
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-completion-show-detail nil)
   (setq lsp-completion-show-kind nil)
-  (setq lsp-ui-doc-enable nil))
-
+  (setq lsp-ui-doc-enable nil)
+  ;; (setq lsp-clients-clangd-args `("--header-insertion-decorators=never"))
+  (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
+  (setq lsp-eldoc-enable-hover nil) ; disable lsp-mode showing eldoc during symbol at point
+  )
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :config
   (setq lsp-ui-sideline-show-hover nil
-              lsp-ui-sideline-delay 0.5
-              lsp-ui-doc-delay 5
-              lsp-ui-sideline-ignore-duplicates t
-              lsp-ui-doc-position 'bottom
-              lsp-ui-doc-alignment 'frame
-              lsp-ui-doc-header nil
-              ;; lsp-ui-doc-include-signature t
-              lsp-ui-doc-use-childframe t))
+	lsp-ui-sideline-delay 0.5
+	lsp-ui-doc-delay 5
+	lsp-ui-sideline-ignore-duplicates t
+	lsp-ui-doc-position 'bottom
+	lsp-ui-doc-alignment 'frame
+	lsp-ui-doc-header nil
+	;; lsp-ui-doc-include-signature t
+	lsp-ui-doc-use-childframe t))
 (use-package dap-mode
   :after lsp-mode)
 
@@ -711,7 +722,7 @@
   :demand t
   :config
   (setq pyvenv-workon "emacs"))  ; Default venv
-  ;; (pyvenv-tracking-mode 1))
+  (pyvenv-tracking-mode 1)
   ;; (pyvenv-mode 1))
 ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
 
@@ -730,13 +741,14 @@
   :ensure t
   :init (require 'ess-site)
   :hook ((ess-mode . my-ess-settings)
-         (org-babel-after-execute . org-display-inline-images))
+	 (org-babel-after-execute . org-display-inline-images))
   :bind (:map ess-mode-map
-              (";" . ess-insert-assign)
-              ("M-_" . my_pipe_operator)
-              :map inferior-ess-mode-map
-              (";" . ess-insert-assign)
-              ("M-_" . my_pipe_operator)))
+	      (";" . ess-insert-assign)
+	      ("M-_" . my_pipe_operator)
+	      :map inferior-ess-mode-map
+	      (";" . ess-insert-assign)
+	      ("M-_" . my_pipe_operator)))
+(setq ess-use-flymake nil) ;; disable Flymake
 
 (use-package vterm
   :commands vterm
@@ -744,3 +756,82 @@
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")  ;; Set this to match your custom shell prompt
   ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
+
+;; To use jupyter-stata-kernal: conda install -c conda-forge stata_kernel, then python -m stata_kernel.install.
+;; (setq inferior-STA-start-args "--simple-prompt --kernel=stata")
+;; (setq inferior-STA-program-name "/usr/local/anaconda3/envs/emacs/bin/jupyter-console")
+(use-package ado-mode
+  :ensure t)
+;; (setq inferior-STA-start-args "")
+;; (setq inferior-STA-program "stata")
+;; (add-to-list 'load-path "~/.emacs.d/ess-stata-mode")
+;; (require 'ess-stata-mode)
+(use-package jupyter
+    :ensure t
+    :config
+    (define-key jupyter-repl-mode-map (kbd "C-l") 'jupyter-repl-clear-cells)
+    (define-key jupyter-repl-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
+    ;; (define-key jupyter-org-interaction-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
+    (define-key jupyter-repl-interaction-mode-map (kbd "C-c C-r") 'jupyter-eval-line-or-region)
+    (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-r") 'jupyter-repl-restart-kernel)
+    (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-k") 'jupyter-shutdown-kernel)
+    (add-hook 'jupyter-org-interaction-mode-hook (lambda () (company-mode)
+                                                   (setq company-backends '(company-capf))))
+    (add-hook 'jupyter-repl-mode-hook (lambda () (company-mode)
+                                        :config (set-face-attribute
+                                                 'jupyter-repl-input-prompt nil :foreground "black")
+                                        :config (set-face-attribute
+                                                 'jupyter-repl-output-prompt nil :foreground "grey")
+                                        (setq company-backends '(company-capf))))
+    (setq jupyter-repl-prompt-margin-width 4))
+
+(use-package ox-reveal
+  :ensure t
+  :config
+  (setq org-enable-github-support t)
+  (setq org-enable-reveal-js-support t)
+  (setq org-reveal-mathjax t)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
+
+(use-package clojure-mode
+  :ensure t
+  :after lsp
+  ;; :hook (clojure-mode . lsp)
+  ;; :mode (("\\.clj\\'" . clojure-mode)
+  ;; 	 ("\\.edn\\'" . clojure-mode))
+  ;; :init
+  ;; (add-hook 'clojure-mode-hook #'yas-minor-mode)         
+  ;; (add-hook 'clojure-mode-hook #'linum-mode)             
+  ;; (add-hook 'clojure-mode-hook #'subword-mode)           
+  ;; (add-hook 'clojure-mode-hook #'smartparens-mode)       
+  ;; (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
+  ;; (add-hook 'clojure-mode-hook #'eldoc-mode)             
+  ;; (add-hook 'clojure-mode-hook #'idle-highlight-mode)
+  )
+
+(use-package cider
+  :ensure t
+  :after lsp
+  ;; :defer t
+  ;; :init (add-hook 'cider-mode-hook #'clj-refactor-mode)
+  ;; :diminish subword-mode
+  :config
+  (setq nrepl-log-messages t                  
+	cider-repl-display-in-current-window t
+	cider-repl-use-clojure-font-lock t    
+	cider-prompt-save-file-on-load 'always-save
+	cider-font-lock-dynamically '(macro core function var)
+	nrepl-hide-special-buffers t            
+	cider-overlays-use-font-lock t)         
+  (cider-repl-toggle-pretty-printing))
+
+(use-package plantuml-mode
+  :ensure t
+  :after org
+  :config
+  (setq plantuml-default-exec-mode 'jar)
+  (setq plantuml-jar-path ""~/.emacs.d/plantuml.jar"")
+  (setq org-plantuml-jar-path
+	(expand-file-name "~/.emacs.d/plantuml.jar")))
+(add-to-list
+ 'org-src-lang-modes '("plantuml" . plantuml))
