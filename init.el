@@ -508,7 +508,7 @@
 
 (use-package org-ref
   :ensure t
-  :after (org org-roam)
+  :requires org
   :config
   (setq org-ref-bibliography-notes "~/Dropbox/org/bib/notes.org"
         org-ref-default-bibliography '("~/Dropbox/org/bib/ref.bib")
@@ -516,58 +516,12 @@
         org-ref-show-broken-links nil))
 ;;(setq bibtex-dialect 'biblatex)
 
-(defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
-"Format of the title to use for `orb-templates'.")
-(use-package org-roam-bibtex
-    :ensure t
-    :hook (org-roam-mode . org-roam-bibtex-mode)
-    :bind (:map org-roam-bibtex-mode-map
-           (("C-c m f" . orb-find-non-ref-file))
-           :map org-mode-map
-           (("C-c m t" . orb-insert-non-ref)
-            ("C-c m a" . orb-note-actions)))
-    :init
-    :custom
-    (orb-autokey-format "%a%y")
-    (orb-templates
-     `(("r" "ref" plain
-        (function org-roam-capture--get-point)
-        ""
-        :file-name "refs/${citekey}"
-        :head ,(s-join "\n"
-                       (list
-                        (concat "#+title: "
-                                orb-title-format)
-                        "#+roam_key: ${ref}"
-                        "#+created: %U"
-                        "#+last_modified: %U\n\n"))
-        :unnarrowed t)
-       ("p" "ref + physical" plain
-        (function org-roam-capture--get-point)
-        ""
-        :file-name "refs/${citekey}"
-        :head ,(s-join "\n"
-                       (list
-                        (concat "#+title: "
-                                orb-title-format)
-                        "#+roam_key: ${ref}"
-                        ""
-                        "* Notes :physical:")))
-       ("n" "ref + noter" plain
-        (function org-roam-capture--get-point)
-        ""
-        :file-name "refs/${citekey}"
-        :head ,(s-join "\n"
-                       (list
-                        (concat "#+title: "
-                                orb-title-format)
-                        "#+roam_key: ${ref}"
-                        ""
-                        "* Notes :noter:"
-                        ":PROPERTIES:"
-                        ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
-                        ":NOTER_PAGE:"
-                        ":END:"))))))
+;; (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
+;; "Format of the title to use for `orb-templates'.")
+;; (use-package org-roam-bibtex
+;;     :ensure t
+;;     :config
+;;     (org-roam-bibtex-mode 1))
 
 (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 
@@ -721,9 +675,10 @@
 (use-package pyvenv
   :demand t
   :config
+  (pyvenv-mode 1)
   (setq pyvenv-workon "emacs"))  ; Default venv
-  (pyvenv-tracking-mode 1)
-  ;; (pyvenv-mode 1))
+  ;; (pyvenv-tracking-mode 1)
+
 ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
 
 ;; Cancel fancy comments ess r
@@ -835,3 +790,37 @@
 	(expand-file-name "~/.emacs.d/plantuml.jar")))
 (add-to-list
  'org-src-lang-modes '("plantuml" . plantuml))
+
+(use-package quelpa
+  :init
+  (setq quelpa-self-upgrade-p nil))
+(use-package quelpa-use-package
+  :after (quelpa)
+  :config
+  (quelpa-use-package-activate-advice))
+
+(use-package bookmark+
+  :quelpa (bookmark+ :fetcher wiki
+		     :files
+		     ("bookmark+.el"
+		      "bookmark+-mac.el"
+		      "bookmark+-bmu.el"
+		      "bookmark+-1.el"
+		      "bookmark+-key.el"
+		      "bookmark+-lit.el"
+		      "bookmark+-doc.el"
+		      "bookmark+-chg.el"))
+  :defer 2)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(bookmark+ quelpa-use-package quelpa yasnippet which-key vterm visual-fill-column use-package rainbow-delimiters pyvenv plantuml-mode pdf-tools ox-reveal org-tree-slide org-roam-bibtex org-bullets no-littering lsp-ui lsp-ivy key-chord jupyter ivy-rich ivy-prescient ivy-bibtex helpful helm-bibtex forge flycheck esxml ess emacsql-sqlite3 doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles dash-functional dap-mode counsel-projectile company-box command-log-mode cider blacken auto-package-update auctex all-the-icons-dired ado-mode)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

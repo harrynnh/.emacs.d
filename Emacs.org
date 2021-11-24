@@ -802,71 +802,25 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+begin_src emacs-lisp
   (use-package org-ref
     :ensure t
-    :after (org org-roam)
+    :requires org
     :config
     (setq org-ref-bibliography-notes "~/Dropbox/org/bib/notes.org"
           org-ref-default-bibliography '("~/Dropbox/org/bib/ref.bib")
           org-ref-pdf-directory "~/Dropbox/papers/"
           org-ref-show-broken-links nil))
   ;;(setq bibtex-dialect 'biblatex)
-
+ 
 #+end_src
 
 ** Org-roam-bibtex
 
 #+begin_src emacs-lisp
-  (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
-  "Format of the title to use for `orb-templates'.")
-  (use-package org-roam-bibtex
-      :ensure t
-      :hook (org-roam-mode . org-roam-bibtex-mode)
-      :bind (:map org-roam-bibtex-mode-map
-             (("C-c m f" . orb-find-non-ref-file))
-             :map org-mode-map
-             (("C-c m t" . orb-insert-non-ref)
-              ("C-c m a" . orb-note-actions)))
-      :init
-      :custom
-      (orb-autokey-format "%a%y")
-      (orb-templates
-       `(("r" "ref" plain
-          (function org-roam-capture--get-point)
-          ""
-          :file-name "refs/${citekey}"
-          :head ,(s-join "\n"
-                         (list
-                          (concat "#+title: "
-                                  orb-title-format)
-                          "#+roam_key: ${ref}"
-                          "#+created: %U"
-                          "#+last_modified: %U\n\n"))
-          :unnarrowed t)
-         ("p" "ref + physical" plain
-          (function org-roam-capture--get-point)
-          ""
-          :file-name "refs/${citekey}"
-          :head ,(s-join "\n"
-                         (list
-                          (concat "#+title: "
-                                  orb-title-format)
-                          "#+roam_key: ${ref}"
-                          ""
-                          "* Notes :physical:")))
-         ("n" "ref + noter" plain
-          (function org-roam-capture--get-point)
-          ""
-          :file-name "refs/${citekey}"
-          :head ,(s-join "\n"
-                         (list
-                          (concat "#+title: "
-                                  orb-title-format)
-                          "#+roam_key: ${ref}"
-                          ""
-                          "* Notes :noter:"
-                          ":PROPERTIES:"
-                          ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
-                          ":NOTER_PAGE:"
-                          ":END:"))))))
+  ;; (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
+  ;; "Format of the title to use for `orb-templates'.")
+  ;; (use-package org-roam-bibtex
+  ;;     :ensure t
+  ;;     :config
+  ;;     (org-roam-bibtex-mode 1))
 #+end_src
 
 * Latex
@@ -1109,9 +1063,10 @@ Pyvenv is able to pickup my conda virtualenv. Setenv to use workon.
   (use-package pyvenv
     :demand t
     :config
+    (pyvenv-mode 1)
     (setq pyvenv-workon "emacs"))  ; Default venv
-    (pyvenv-tracking-mode 1)
-    ;; (pyvenv-mode 1))
+    ;; (pyvenv-tracking-mode 1)
+
   ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
 #+end_src
 
@@ -1250,4 +1205,27 @@ Make sure that you have the [[https://github.com/akermu/emacs-libvterm/#requirem
 	    (expand-file-name "~/.emacs.d/plantuml.jar")))
     (add-to-list
      'org-src-lang-modes '("plantuml" . plantuml))
+  #+end_src
+* Bookmark+
+  #+begin_src emacs-lisp
+    (use-package quelpa
+      :init
+      (setq quelpa-self-upgrade-p nil))
+    (use-package quelpa-use-package
+      :after (quelpa)
+      :config
+      (quelpa-use-package-activate-advice))
+
+    (use-package bookmark+
+      :quelpa (bookmark+ :fetcher wiki
+			 :files
+			 ("bookmark+.el"
+			  "bookmark+-mac.el"
+			  "bookmark+-bmu.el"
+			  "bookmark+-1.el"
+			  "bookmark+-key.el"
+			  "bookmark+-lit.el"
+			  "bookmark+-doc.el"
+			  "bookmark+-chg.el"))
+      :defer 2)
   #+end_src
