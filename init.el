@@ -190,10 +190,6 @@
   (use-package dired-hide-dotfiles
     :hook (dired-mode . dired-hide-dotfiles-mode))
 
-;; (use-package flycheck
-;;   :ensure t
-;;   :init (global-flycheck-mode))
-
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
@@ -241,9 +237,6 @@
   (company-minimum-prefix-length 3)
   (company-idle-delay 0.36)
   (company-tooltip-align-annotations 't))
-(use-package company-box
-  :after company
-  :hook (company-mode . company-box-mode))
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -285,7 +278,7 @@
   :commands (org-capture org-agenda)
   :hook (org-mode . efs/org-mode-setup)
   :bind (:map org-mode-map
-              ("C-c i". org-toggle-item))
+	      ("C-c i". org-toggle-item))
   :config
   (setq org-image-actual-width nil)
   (setq org-ellipsis " ▾")
@@ -294,9 +287,9 @@
   (setq org-log-into-drawer t)
 
   (setq org-agenda-files
-        '("~/Dropbox/org/work.org"
-          "~/Dropbox/org/habit.org"
-          "~/Dropbox/org/birthday.org"))
+	'("~/Dropbox/org/work.org"
+	  "~/Dropbox/org/habit.org"
+	  "~/Dropbox/org/birthday.org"))
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)
@@ -331,12 +324,12 @@
    '(("d" "Dashboard"
      ((agenda "" ((org-deadline-warning-days 14)))
       (todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))
+	((org-agenda-overriding-header "Next Tasks")))
       (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
 
     ("n" "Next Tasks"
      ((todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))))
+	((org-agenda-overriding-header "Next Tasks")))))
 
     ("W" "Work Tasks" tags-todo "+work-email")
 
@@ -348,53 +341,53 @@
 
     ("w" "Workflow Status"
      ((todo "WAIT"
-            ((org-agenda-overriding-header "Waiting on External")
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "Waiting on External")
+	     (org-agenda-files org-agenda-files)))
       (todo "REVIEW"
-            ((org-agenda-overriding-header "In Review")
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "In Review")
+	     (org-agenda-files org-agenda-files)))
       (todo "PLAN"
-            ((org-agenda-overriding-header "In Planning")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "In Planning")
+	     (org-agenda-todo-list-sublevels nil)
+	     (org-agenda-files org-agenda-files)))
       (todo "BACKLOG"
-            ((org-agenda-overriding-header "Project Backlog")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "Project Backlog")
+	     (org-agenda-todo-list-sublevels nil)
+	     (org-agenda-files org-agenda-files)))
       (todo "READY"
-            ((org-agenda-overriding-header "Ready for Work")
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "Ready for Work")
+	     (org-agenda-files org-agenda-files)))
       (todo "ACTIVE"
-            ((org-agenda-overriding-header "Active Projects")
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "Active Projects")
+	     (org-agenda-files org-agenda-files)))
       (todo "COMPLETED"
-            ((org-agenda-overriding-header "Completed Projects")
-             (org-agenda-files org-agenda-files)))
+	    ((org-agenda-overriding-header "Completed Projects")
+	     (org-agenda-files org-agenda-files)))
       (todo "CANC"
-            ((org-agenda-overriding-header "Cancelled Projects")
-             (org-agenda-files org-agenda-files)))))))
+	    ((org-agenda-overriding-header "Cancelled Projects")
+	     (org-agenda-files org-agenda-files)))))))
 
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
       ("tt" "Task" entry (file+olp "~/Dropbox/org/work.org" "Inbox")
-           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+	   "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
-           (file+olp+datetree "~/Dropbox/org/journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-           :clock-in :clock-resume
-           :empty-lines 1)
+	   (file+olp+datetree "~/Dropbox/org/journal.org")
+	   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+	   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+	   :clock-in :clock-resume
+	   :empty-lines 1)
       ("jm" "Meeting" entry
-           (file+olp+datetree "~/Dropbox/org/journal.org")
-           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
+	   (file+olp+datetree "~/Dropbox/org/journal.org")
+	   "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+	   :clock-in :clock-resume
+	   :empty-lines 1)
 
       ("w" "Workflows")
       ("we" "Checking Email" entry (file+olp+datetree "~/Dropbox/org/journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)))
+	   "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)))
 
   (efs/org-font-setup))
 (global-set-key (kbd "C-c c") 'org-capture)
@@ -413,24 +406,26 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-;; (defun org-export-output-file-name-modified (orig-fun extension &optional subtreep pub-dir)
-;;   (unless pub-dir
-;;     (setq pub-dir "../output")
-;;     (unless (file-directory-p pub-dir)
-;;       (make-directory pub-dir)))
-;;   (apply orig-fun extension subtreep pub-dir nil))
-;; (advice-add 'org-export-output-file-name :around #'org-export-output-file-name-modified)
+(use-package ob
+  :ensure nil
+  :config (progn
+	    ;; load more languages for org-babel
+	    (org-babel-do-load-languages
+	     'org-babel-load-languages
+	     '((python . t)
+	       (shell . t)
+	       (latex . t)
+	       (R . t)
+	       (jupyter . t)))          ; must be last
 
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-	(python . t)
-	(R . t)
-	(jupyter . t)
-	(plantuml . t)))
+	    (setq org-babel-default-header-args:sh    '((:results . "output replace"))
+		  org-babel-default-header-args:bash  '((:results . "output replace"))
+		  org-babel-default-header-args:shell '((:results . "output replace"))
+		  org-babel-default-header-args:jupyter-python '((:async . "yes")
+								 (:session . "py")
+								 (:kernel . "emacs")))
 
-  (push '("conf-unix" . conf-unix) org-src-lang-modes))
+	    (setq org-confirm-babel-evaluate nil)))
 
 (with-eval-after-load 'org
   ;; This is needed as of Org 9.2
@@ -497,59 +492,98 @@
     '(("d" "default" plain
        "%?"
        :if-new (file+head "%<%Y%m%d%H%M%S>_${slug}.org"
-                          "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n")
+			  "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n")
        :unnarrowed t))
     org-roam-dailies-capture-templates
     '(("d" "default" entry
        "* %?"
        :if-new (file+head "%<%Y-%m-%d>.org"
-                          "#+title: %<%Y-%m-%d>\n\n")
+			  "#+title: %<%Y-%m-%d>\n\n")
        :add-created t))))
 
 (use-package org-ref
   :ensure t
-  :requires org
+  :after org
   :config
-  (setq org-ref-bibliography-notes "~/Dropbox/org/bib/notes.org"
-        org-ref-default-bibliography '("~/Dropbox/org/bib/ref.bib")
-        org-ref-pdf-directory "~/Dropbox/papers/"
-        org-ref-show-broken-links nil))
 ;;(setq bibtex-dialect 'biblatex)
+  (setq bibtex-completion-bibliography '("~/org/bib/ref.bib")
+      bibtex-completion-library-path '("~/papers/")
+      bibtex-completion-notes-path "~/org/bib/notes/"
+      bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
 
-;; (defvar orb-title-format "${author-or-editor-abbrev} (${date}).  ${title}."
-;; "Format of the title to use for `orb-templates'.")
-;; (use-package org-roam-bibtex
-;;     :ensure t
-;;     :config
-;;     (org-roam-bibtex-mode 1))
+      bibtex-completion-additional-search-fields '(keywords)
+      bibtex-completion-display-formats
+      '((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	(inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:sep 32}")
+	(incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	(inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	(t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+      bibtex-completion-pdf-open-function
+      (lambda (fpath)
+	(call-process "open" nil 0 nil fpath))))
+(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
 
 (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 
 (with-eval-after-load "ox-latex"
-    (add-to-list 'org-latex-classes
-          '("koma-article"
-             "\\documentclass[
-  ,a4paper
-  ,DIV=12
-  ,12pt
-  ,abstract
-  ]{scrartcl}
-  \\author{Harry Nguyen}"
-             ("\\section{%s}" . "\\section*{%s}")
-             ("\\subsection{%s}" . "\\subsection*{%s}")
-             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-             ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-    '("article"
-      "\\documentclass[11pt,article,oneside]{memoir}"
-      ("\\chapter{%s}" . "\\chapter*{%s}")
-      ("\\section{%s}" . "\\section*{%s}")
-      ("\\subsection{%s}" . "\\subsection*{%s}")       
-      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-      ("\\paragraph{%s}" . "\\paragraph*{%s}")
-      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-    ))
+  (add-to-list 'org-latex-classes
+	       '("koma-article"
+		 "\\documentclass[
+      ,a4paper
+      ,DIV=12
+      ,12pt
+      ,abstract
+      ]{scrartcl}
+      \\author{Harry Nguyen}"
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+	       '("article"
+		 "\\documentclass[11pt,article,oneside]{memoir}"
+		 ("\\chapter{%s}" . "\\chapter*{%s}")
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")       
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+	       )
+  ;; Set up org-mode export stuff
+  (add-to-list 'org-latex-classes
+	       '("apa7"
+		 "\\documentclass{apa7}"
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+	       '("elsarticle"
+		 "\\documentclass{elsarticle}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]"
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+	       '("mimosis"
+		 "\\documentclass{mimosis}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]
+\\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
+\\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
+		 ("\\chapter{%s}" . "\\chapter*{%s}")
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\mboxparagraph{%s}" . "\\mboxparagraph*{%s}")
+		 ("\\mboxsubparagraph{%s}" . "\\mboxsubparagraph*{%s}"))))
 
 (use-package pdf-tools
  :pin manual
@@ -593,16 +627,10 @@
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
-
+;; (use-package posframe
+;;   :ensure t)
 (use-package lsp-mode
   :ensure t
-  ;;:commands (lsp lsp-deferred)
-  ;; :config
-  ;;  (lsp-register-custom-settings
-  ;; '(("pyls.plugins.pyls_mypy.enabled" t t)
-  ;;   ("pyls.plugins.pyls_mypy.live_mode" nil t)
-  ;;   ("pyls.plugins.pyls_black.enabled" t t)
-  ;;   ("pyls.plugins.pyls_isort.enabled" t t)))
   :hook ((lsp-mode . efs/lsp-mode-setup)
 	 (python-mode . lsp)
 	 (c++-mode . lsp)
@@ -614,29 +642,25 @@
 	 (lsp-mode-hook . lsp-enable-which-key-integration))
   :init
   (setq lsp-keymap-prefix "C-c l")
-  (setq lsp-completion-provider :none)
-  (setq lsp-diagnostics-provider :none)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-completion-show-detail nil)
-  (setq lsp-completion-show-kind nil)
-  (setq lsp-ui-doc-enable nil)
-  ;; (setq lsp-clients-clangd-args `("--header-insertion-decorators=never"))
-  (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
-  (setq lsp-eldoc-enable-hover nil) ; disable lsp-mode showing eldoc during symbol at point
+  :config
+  (setq lsp-eldoc-hook nil
+	lsp-signature-auto-activate nil
+	lsp-idle-delay 0.5
+	lsp-enable-symbol-highlighting t
+	lsp-enable-snippet nil  ;; Not supported by company capf, which is the recommended company backend)
+	lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
   )
 (use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
+  :ensure t
+  :after lsp-mode
   :config
-  (setq lsp-ui-sideline-show-hover nil
+  (setq lsp-ui-sideline-show-hover t
 	lsp-ui-sideline-delay 0.5
-	lsp-ui-doc-delay 5
+	lsp-ui-doc-delay 1
 	lsp-ui-sideline-ignore-duplicates t
-	lsp-ui-doc-position 'bottom
-	lsp-ui-doc-alignment 'frame
-	lsp-ui-doc-header nil
-	;; lsp-ui-doc-include-signature t
-	lsp-ui-doc-use-childframe t))
+	lsp-ui-doc-include-signature t
+	)
+  )
 (use-package dap-mode
   :after lsp-mode)
 
@@ -664,19 +688,25 @@
 (yas-global-mode 1)
 :after lsp)
 
+(use-package blacken
+  :demand t
+  :requires python
+  :hook (python-mode . blacken-mode)
+  :custom (blacken-line-length 79))
 ;; (eval-after-load 'python-mode
 ;;   '(bind-key "C-RET" 'python-shell-send-statement))
 (setq python-indent-guess-indent-offset-verbose nil)
     ;;(setq python-shell-interpreter "python3")
   (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt --pprint")
+	python-shell-interpreter-args "-i --simple-prompt --pprint")
 
 (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
 (use-package pyvenv
-  :demand t
+  :ensure t
   :config
   (pyvenv-mode 1)
-  (setq pyvenv-workon "emacs"))  ; Default venv
+  (setq pyvenv-workon "emacs")
+  )  ; Default venv
   ;; (pyvenv-tracking-mode 1)
 
 ;;(pyvenv-activate "/usr/local/anaconda3/envs/emacs")
@@ -712,6 +742,14 @@
   ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
 
+(use-package ox-reveal
+  :ensure t
+  :config
+  (setq org-enable-github-support t)
+  (setq org-enable-reveal-js-support t)
+  (setq org-reveal-mathjax t)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
+
 ;; To use jupyter-stata-kernal: conda install -c conda-forge stata_kernel, then python -m stata_kernel.install.
 ;; (setq inferior-STA-start-args "--simple-prompt --kernel=stata")
 ;; (setq inferior-STA-program-name "/usr/local/anaconda3/envs/emacs/bin/jupyter-console")
@@ -721,32 +759,31 @@
 ;; (setq inferior-STA-program "stata")
 ;; (add-to-list 'load-path "~/.emacs.d/ess-stata-mode")
 ;; (require 'ess-stata-mode)
+(require 'ob-jupyter)
 (use-package jupyter
-    :ensure t
-    :config
-    (define-key jupyter-repl-mode-map (kbd "C-l") 'jupyter-repl-clear-cells)
-    (define-key jupyter-repl-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
-    ;; (define-key jupyter-org-interaction-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
-    (define-key jupyter-repl-interaction-mode-map (kbd "C-c C-r") 'jupyter-eval-line-or-region)
-    (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-r") 'jupyter-repl-restart-kernel)
-    (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-k") 'jupyter-shutdown-kernel)
-    (add-hook 'jupyter-org-interaction-mode-hook (lambda () (company-mode)
-                                                   (setq company-backends '(company-capf))))
-    (add-hook 'jupyter-repl-mode-hook (lambda () (company-mode)
-                                        :config (set-face-attribute
-                                                 'jupyter-repl-input-prompt nil :foreground "black")
-                                        :config (set-face-attribute
-                                                 'jupyter-repl-output-prompt nil :foreground "grey")
-                                        (setq company-backends '(company-capf))))
-    (setq jupyter-repl-prompt-margin-width 4))
-
-(use-package ox-reveal
   :ensure t
+  :after pyvenv
   :config
-  (setq org-enable-github-support t)
-  (setq org-enable-reveal-js-support t)
-  (setq org-reveal-mathjax t)
-  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
+  (define-key jupyter-repl-mode-map (kbd "C-l") 'jupyter-repl-clear-cells)
+  (define-key jupyter-repl-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
+  ;; (define-key jupyter-org-interaction-mode-map (kbd "TAB") 'company-complete-common-or-cycle)
+  (define-key jupyter-repl-interaction-mode-map (kbd "C-c C-r") 'jupyter-eval-line-or-region)
+  (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-r") 'jupyter-repl-restart-kernel)
+  (define-key jupyter-repl-interaction-mode-map (kbd "C-c M-k") 'jupyter-shutdown-kernel)
+  (add-hook 'jupyter-org-interaction-mode-hook (lambda () (company-mode)
+						 (setq company-backends '(company-capf))))
+  (add-hook 'jupyter-repl-mode-hook (lambda () (company-mode)
+				      :config (set-face-attribute
+					       'jupyter-repl-input-prompt nil :foreground "black")
+				      :config (set-face-attribute
+					       'jupyter-repl-output-prompt nil :foreground "grey")
+				      (setq company-backends '(company-capf))))
+  (setq jupyter-repl-prompt-margin-width 4)
+  )
+(defun my/jupyter-refresh-kernelspecs ()
+  "Refresh Jupyter kernelspecs"
+  (interactive)
+  (jupyter-available-kernelspecs t))
 
 (use-package clojure-mode
   :ensure t
@@ -780,17 +817,6 @@
 	cider-overlays-use-font-lock t)         
   (cider-repl-toggle-pretty-printing))
 
-(use-package plantuml-mode
-  :ensure t
-  :after org
-  :config
-  (setq plantuml-default-exec-mode 'jar)
-  (setq plantuml-jar-path ""~/.emacs.d/plantuml.jar"")
-  (setq org-plantuml-jar-path
-	(expand-file-name "~/.emacs.d/plantuml.jar")))
-(add-to-list
- 'org-src-lang-modes '("plantuml" . plantuml))
-
 (use-package quelpa
   :init
   (setq quelpa-self-upgrade-p nil))
@@ -811,16 +837,3 @@
 		      "bookmark+-doc.el"
 		      "bookmark+-chg.el"))
   :defer 2)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(bookmark+ quelpa-use-package quelpa yasnippet which-key vterm visual-fill-column use-package rainbow-delimiters pyvenv plantuml-mode pdf-tools ox-reveal org-tree-slide org-roam-bibtex org-bullets no-littering lsp-ui lsp-ivy key-chord jupyter ivy-rich ivy-prescient ivy-bibtex helpful helm-bibtex forge flycheck esxml ess emacsql-sqlite3 doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles dash-functional dap-mode counsel-projectile company-box command-log-mode cider blacken auto-package-update auctex all-the-icons-dired ado-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
