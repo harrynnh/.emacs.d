@@ -42,9 +42,11 @@ Emacs has a built in package manager but it doesn't make it easy to automaticall
   ;; Initialize package sources
   (require 'package)
 
-  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ("org" . "https://orgmode.org/elpa/")
-                           ("elpa" . "https://elpa.gnu.org/packages/")))
+  (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			   ("melpa" . "https://melpa.org/packages/")
+			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			   ("org" . "https://orgmode.org/elpa/")
+			   ))
 
   (package-initialize)
   (unless package-archive-contents
@@ -512,6 +514,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (visual-line-mode 1))
 
   (use-package org
+    :ensure org-contrib
     :pin org
     :commands (org-capture org-agenda)
     :hook (org-mode . efs/org-mode-setup)
@@ -528,6 +531,8 @@ This section contains the basic configuration for =org-mode= plus the configurat
 	  '("~/Dropbox/org/work.org"
 	    "~/Dropbox/org/habit.org"
 	    "~/Dropbox/org/birthday.org"))
+    (require 'ox-extra)
+    (ox-extras-activate '(latex-header-blocks ignore-headlines))
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -631,6 +636,9 @@ This section contains the basic configuration for =org-mode= plus the configurat
   (global-set-key (kbd "C-c c") 'org-capture)
   (define-key global-map (kbd "C-c a") 'org-agenda)
 #+end_src
+
+#+RESULTS:
+: org-agenda
 
 *** Nicer Heading Bullets
 
@@ -825,12 +833,12 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
     (add-to-list 'org-latex-classes
 		 '("koma-article"
 		   "\\documentclass[
-	,a4paper
-	,DIV=12
-	,12pt
-	,abstract
-	]{scrartcl}
-	\\author{Harry Nguyen}"
+	  ,a4paper
+	  ,DIV=12
+	  ,12pt
+	  ,abstract
+	  ]{scrartcl}
+	  \\author{Harry Nguyen}"
 		   ("\\section{%s}" . "\\section*{%s}")
 		   ("\\subsection{%s}" . "\\subsection*{%s}")
 		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -858,9 +866,9 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
     (add-to-list 'org-latex-classes
 		 '("elsarticle"
 		   "\\documentclass{elsarticle}
-   [NO-DEFAULT-PACKAGES]
-   [PACKAGES]
-   [EXTRA]"
+     [NO-DEFAULT-PACKAGES]
+     [PACKAGES]
+     [EXTRA]"
 		   ("\\section{%s}" . "\\section*{%s}")
 		   ("\\subsection{%s}" . "\\subsection*{%s}")
 		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -869,11 +877,11 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
     (add-to-list 'org-latex-classes
 		 '("mimosis"
 		   "\\documentclass{mimosis}
-   [NO-DEFAULT-PACKAGES]
-   [PACKAGES]
-   [EXTRA]
-  \\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
-  \\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
+     [NO-DEFAULT-PACKAGES]
+     [PACKAGES]
+     [EXTRA]
+    \\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
+    \\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
 		   ("\\chapter{%s}" . "\\chapter*{%s}")
 		   ("\\section{%s}" . "\\section*{%s}")
 		   ("\\subsection{%s}" . "\\subsection*{%s}")

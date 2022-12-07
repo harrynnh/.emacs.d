@@ -20,9 +20,11 @@
 ;; Initialize package sources
 (require 'package)
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ("org" . "https://orgmode.org/elpa/")
+			 ))
 
 (package-initialize)
 (unless package-archive-contents
@@ -274,6 +276,7 @@
   (visual-line-mode 1))
 
 (use-package org
+  :ensure org-contrib
   :pin org
   :commands (org-capture org-agenda)
   :hook (org-mode . efs/org-mode-setup)
@@ -290,6 +293,8 @@
 	'("~/Dropbox/org/work.org"
 	  "~/Dropbox/org/habit.org"
 	  "~/Dropbox/org/birthday.org"))
+  (require 'ox-extra)
+  (ox-extras-activate '(latex-header-blocks ignore-headlines))
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)
@@ -529,12 +534,12 @@
   (add-to-list 'org-latex-classes
 	       '("koma-article"
 		 "\\documentclass[
-      ,a4paper
-      ,DIV=12
-      ,12pt
-      ,abstract
-      ]{scrartcl}
-      \\author{Harry Nguyen}"
+	,a4paper
+	,DIV=12
+	,12pt
+	,abstract
+	]{scrartcl}
+	\\author{Harry Nguyen}"
 		 ("\\section{%s}" . "\\section*{%s}")
 		 ("\\subsection{%s}" . "\\subsection*{%s}")
 		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -562,9 +567,9 @@
   (add-to-list 'org-latex-classes
 	       '("elsarticle"
 		 "\\documentclass{elsarticle}
- [NO-DEFAULT-PACKAGES]
- [PACKAGES]
- [EXTRA]"
+   [NO-DEFAULT-PACKAGES]
+   [PACKAGES]
+   [EXTRA]"
 		 ("\\section{%s}" . "\\section*{%s}")
 		 ("\\subsection{%s}" . "\\subsection*{%s}")
 		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -573,11 +578,11 @@
   (add-to-list 'org-latex-classes
 	       '("mimosis"
 		 "\\documentclass{mimosis}
- [NO-DEFAULT-PACKAGES]
- [PACKAGES]
- [EXTRA]
-\\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
-\\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
+   [NO-DEFAULT-PACKAGES]
+   [PACKAGES]
+   [EXTRA]
+  \\newcommand{\\mboxparagraph}[1]{\\paragraph{#1}\\mbox{}\\\\}
+  \\newcommand{\\mboxsubparagraph}[1]{\\subparagraph{#1}\\mbox{}\\\\}"
 		 ("\\chapter{%s}" . "\\chapter*{%s}")
 		 ("\\section{%s}" . "\\section*{%s}")
 		 ("\\subsection{%s}" . "\\subsection*{%s}")
@@ -837,3 +842,17 @@
 		      "bookmark+-doc.el"
 		      "bookmark+-chg.el"))
   :defer 2)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(org-contrib yasnippet which-key vterm visual-fill-column rainbow-delimiters quelpa-use-package pyvenv plantuml-mode pdf-tools ox-reveal org-tree-slide org-roam-bibtex org-ref org-bullets no-littering lsp-ui lsp-ivy key-chord jupyter ivy-rich ivy-prescient ivy-bibtex helpful helm-bibtex forge flycheck esxml ess emacsql-sqlite3 doom-themes doom-modeline dired-single dired-open dired-hide-dotfiles dash-functional dap-mode counsel-projectile company-box command-log-mode cider bookmark+ blacken auto-package-update auctex all-the-icons-dired ado-mode))
+ '(safe-local-variable-values '((org-export-allow-bind-keywords . t))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
